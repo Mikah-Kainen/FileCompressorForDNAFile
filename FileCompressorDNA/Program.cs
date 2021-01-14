@@ -20,62 +20,85 @@ namespace FileCompressorDNA
                 switch((char)targetBytes[i])
                 {
                     case 'A':
-
+                        indexValue = 00;
                         break;
 
                     case 'C':
-
+                        indexValue = 01;
                         break;
 
                     case 'G':
-
+                        indexValue = 10;
                         break;
 
                     case 'T':
-
+                        indexValue = 11;
                         break;
 
                     default:
-
+                        indexValue = 2;
                         break;
                 }
                 // A = 00
                 // C = 01
                 // G = 10
                 // T = 11
-                if (targetBytes[i] == 'A')
-                {
 
-                }
-                else if(targetBytes[i] == 'C')
-                {
+                //73,74 145,146
 
-                }
-                else if(targetBytes[i] == 'G')
-                {
-
-                }
-                else if(targetBytes[i] == 'T')
-                {
-
-                }
-                else
-                {
-                    throw new Exception("Read incorrectly");
-                }
                 returnValue[i - start] = indexValue;
+            }
+            var t = returnValue.Where(x => x != 2).ToArray();
+
+            return t;
+        }
+         
+
+        static char[] BinaryDecoder(int[] targetArray, int start, int end)
+        {
+            char[] returnArray = new char[end-start];
+            char indexValue;
+            for(int i = start; i < end; i ++)
+            {
+                switch(targetArray[i])
+                {
+                    case 0:
+                        indexValue = 'A';
+                        break;
+
+                    case 1:
+                        indexValue = 'C';
+                        break;
+
+                    case 10:
+                        indexValue = 'G';
+                        break;
+
+                    case 11:
+                        indexValue = 'T';
+                        break;
+
+                    default:
+                        indexValue = '?';
+                        throw new Exception("Default shouldn't run exception");
+                        break;
+                }
+                returnArray[i - start] = indexValue;
             }
 
 
-            return returnValue;
+            return returnArray;
         }
 
-        static byte[] BinaryDecoder(int targetInt)
+
+        static int[] SliceArray(int[] targetArray, int startIndex, int endIndex)
         {
-
-
-
-            return null;
+            int[] returnArray = new int[endIndex-startIndex + 1];
+            for(int i = startIndex; i < endIndex + 1; i ++)
+            {
+                returnArray[i - startIndex] = targetArray[i];
+            }
+            return returnArray;
         }
 
 
@@ -89,6 +112,26 @@ namespace FileCompressorDNA
 
 
             int[] binary = BinaryCoder(DNAString, start, end);
+
+
+
+
+            int[] test2 = SliceArray(binary, binary.Length - 1000, binary.Length - 1);
+
+            int[] test = new int[1000];
+
+
+            for (int i = 0; i < 1000; i++)
+            {
+                test[1000 - i - 1] = binary[binary.Length - 1 - i];
+            }
+
+            byte[] b = new byte[0];
+
+            File.WriteAllBytes("../../../test.txt", b);
+
+            char[] DNADecoded = BinaryDecoder(binary, 0, binary.Length);
+
             // A = 00
             // C = 01
             // G = 10
