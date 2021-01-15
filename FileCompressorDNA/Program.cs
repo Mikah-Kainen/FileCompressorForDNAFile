@@ -53,6 +53,19 @@ namespace FileCompressorDNA
             return t;
         }
          
+        static byte[] IntToByte(int[] targetInt)
+        {
+            byte[] returnArray = new byte[targetInt.Length / 4];
+            for(int i = 0; i < returnArray.Length; i ++)
+            {
+                returnArray[i] += (byte)(targetInt[4 * i] << 6);
+                returnArray[i] += (byte)(targetInt[4 * i + 1] << 4);
+                returnArray[i] += (byte)(targetInt[4 * i + 2] << 2);
+                returnArray[i] += (byte)(targetInt[4 * i + 3]);
+            }
+
+            return returnArray;
+        }
 
         static char[] BinaryDecoder(int[] targetArray, int start, int end)
         {
@@ -128,7 +141,7 @@ namespace FileCompressorDNA
 
             byte[] b = new byte[0];
 
-            File.WriteAllBytes("../../../test.txt", b);
+            File.WriteAllBytes("../../../test.txt", IntToByte(binary));
 
             char[] DNADecoded = BinaryDecoder(binary, 0, binary.Length);
 
