@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml.Schema;
 
 namespace FileCompressorDNA
@@ -55,16 +56,65 @@ namespace FileCompressorDNA
          
         static byte[] IntToByte(int[] targetInt)
         {
+            StringBuilder sb = new StringBuilder();
+
+            string newAdd;
+            foreach (int temp in targetInt)
+            {
+                if(temp < 2)
+                {
+                    newAdd = '0' + temp.ToString();
+                }
+                else
+                {
+                    newAdd = temp.ToString();
+                }
+                sb.Append(newAdd);
+            }
+
+            string str = sb.ToString();
+
             byte[] returnArray = new byte[targetInt.Length / 4];
             for(int i = 0; i < returnArray.Length; i ++)
             {
-                returnArray[i] += (byte)(targetInt[4 * i] << 6);
-                returnArray[i] += (byte)(targetInt[4 * i + 1] << 4);
-                returnArray[i] += (byte)(targetInt[4 * i + 2] << 2);
-                returnArray[i] += (byte)(targetInt[4 * i + 3]);
+                string byteAsString = null;
+                for(int x = 0; x < 8; x ++)
+                {
+                    byteAsString += sb[8 * i + x];
+                }
+                int temp = BinaryToDecimal(byteAsString);
+               
+
+
+                returnArray[i] = (byte)(temp);
+                string bin = Convert.ToString(returnArray[i], 2);
+
+                //returnArray[i] += (byte)(targetInt[4 * i] << 6);
+                //string bin1 = Convert.ToString(returnArray[4 * i], 2);
+
+                //returnArray[i] += (byte)(targetInt[4 * i + 1] << 4);
+                //string bin2 = Convert.ToString(returnArray[4 * i], 2);
+
+                //returnArray[i] += (byte)(targetInt[4 * i + 2] << 2);
+                //string bin3 = Convert.ToString(returnArray[4 * i], 2);
+
+                //returnArray[i] += (byte)(targetInt[4 * i + 3]);
+                //string bin4 = Convert.ToString(returnArray[4*i], 2);
             }
 
             return returnArray;
+        }
+
+        static int BinaryToDecimal(string targetBinary)
+        {
+            int returnInt = 0;
+
+            for(int i = 0; i < 8; i ++)
+            {
+                returnInt += targetBinary[8 - i] * (2 ^ i);
+            }
+
+            return returnInt;
         }
 
         static char[] BinaryDecoder(int[] targetArray, int start, int end)
