@@ -111,7 +111,7 @@ namespace FileCompressorDNA
 
             for(int i = 0; i < 8; i ++)
             {
-                returnInt += targetBinary[8 - i] * (2 ^ i);
+                returnInt += targetBinary[8 - i - 1] * (int)(Math.Pow(2, i));
             }
 
             return returnInt;
@@ -167,6 +167,11 @@ namespace FileCompressorDNA
 
         static void Main(string[] args)
         {
+            string rand = "0";
+            string rand2 = "1";
+            int randInt = rand[0];
+            int randInt2 = rand2[0];
+
             Console.WriteLine("Hello World!");
 
             byte[] DNAString = File.ReadAllBytes("DNA.txt");
