@@ -71,10 +71,16 @@ namespace FileCompressorDNA
                 }
                 sb.Append(newAdd);
             }
+            int extraSpace = 4 - targetInt.Length % 4;
+            for(int i = 0; i < extraSpace; i ++)
+            {
+                sb.Append("00");
+            }
 
             string str = sb.ToString();
 
-            byte[] returnArray = new byte[targetInt.Length / 4];
+            byte[] returnArray = new byte[str.Length / 8];
+
             for(int i = 0; i < returnArray.Length; i ++)
             {
                 string byteAsString = null;
@@ -88,6 +94,7 @@ namespace FileCompressorDNA
 
                 returnArray[i] = (byte)(temp);
                 string bin = Convert.ToString(returnArray[i], 2);
+
 
                 //returnArray[i] += (byte)(targetInt[4 * i] << 6);
                 //string bin1 = Convert.ToString(returnArray[4 * i], 2);
@@ -119,26 +126,26 @@ namespace FileCompressorDNA
 
         static char[] BinaryDecoder(byte[] targetArray, int start, int end)
         {
-            char[] returnArray = new char[end - start];
+            char[] returnArray = new char[(end - start) * 4];
             char indexValue;
 
             for (int i = start; i < end; i++)
             {
+                string simpleBinary = Convert.ToString(targetArray[i], 2);
+                int extra = 8 - simpleBinary.Length;
+                string finalBinary = "";
+                for (int z = 0; z < extra; z++)
+                {
+                    finalBinary += "0";
+                }
+                foreach (char number in simpleBinary)
+                {
+                    finalBinary += number;
+                }
+
                 for (int x = 0; x < 4; x++)
                 {
-                    string simpleBinary = Convert.ToString(targetArray[i], 2);
-                    int extra = 8 - simpleBinary.Length;
-                    string finalBinary = "";
-                    for(int z = 0; z < extra; z ++)
-                    {
-                        finalBinary += "0";
-                    }
-                    foreach(char number in simpleBinary)
-                    {
-                        finalBinary += number;
-                    }
-                    
-;
+
                     int targetIndex = (finalBinary[2 * x] - 48) * 10 + finalBinary[2 * x + 1] - 48;
 
                     switch (targetIndex)
@@ -164,44 +171,9 @@ namespace FileCompressorDNA
                             break;
 
                     }
-                    returnArray[i - start] = indexValue;
+                    returnArray[4*i + x - start] = indexValue;
                 }
             }
-
-            return returnArray;
-        }
-
-        static char[] BinaryDecoder(int[] targetArray, int start, int end)
-        {
-            char[] returnArray = new char[end-start];
-            char indexValue;
-            for(int i = start; i < end; i ++)
-            {
-                switch(targetArray[i])
-                {
-                    case 0:
-                        indexValue = 'A';
-                        break;
-
-                    case 1:
-                        indexValue = 'C';
-                        break;
-
-                    case 10:
-                        indexValue = 'G';
-                        break;
-
-                    case 11:
-                        indexValue = 'T';
-                        break;
-
-                    default:
-                        indexValue = '?';
-                        throw new Exception("Default shouldn't run exception");
-                }
-                returnArray[i - start] = indexValue;
-            }
-
 
             return returnArray;
         }
@@ -248,6 +220,13 @@ namespace FileCompressorDNA
 
             byte[] CompressedBytes = IntToByte(binary);
             File.WriteAllBytes("../../../test.txt", CompressedBytes);
+            File.AppendAllText("../../../test.txt", $" {end - start}");
+
+
+            //read all text then split the string by ' '
+            //string1 -> ASCIIEncoding.ASCII.GetBytes() -> CompressedBytes
+            //string2 -> end
+
 
             char[] DNADecoded = BinaryDecoder(CompressedBytes, 0, CompressedBytes.Length);
             var result2 = SliceArray(DNADecoded, DNADecoded.Length - 50, DNADecoded.Length - 1);
