@@ -126,21 +126,36 @@ namespace FileCompressorDNA
             {
                 for (int x = 0; x < 4; x++)
                 {
-                    switch((Convert.ToString(targetArray[i], 2).PadLeft(2 * x)).PadRight(6 - 2 * x))
+                    string simpleBinary = Convert.ToString(targetArray[i], 2);
+                    int extra = 8 - simpleBinary.Length;
+                    string finalBinary = "";
+                    for(int z = 0; z < extra; z ++)
                     {
-                        case 00000000:
+                        finalBinary += "0";
+                    }
+                    foreach(char number in simpleBinary)
+                    {
+                        finalBinary += number;
+                    }
+                    
+;
+                    int targetIndex = (finalBinary[2 * x] - 48) * 10 + finalBinary[2 * x + 1] - 48;
+
+                    switch (targetIndex)
+                    {
+                        case 0:
                             indexValue = 'A';
                             break;
 
-                        case 00000001:
+                        case 1:
                             indexValue = 'C';
                             break;
 
-                        case 00000010:
+                        case 10:
                             indexValue = 'G';
                             break;
 
-                        case 00000011:
+                        case 11:
                             indexValue = 'T';
                             break;
 
