@@ -124,12 +124,31 @@ namespace FileCompressorDNA
             return returnInt;
         }
 
+        static char[] Decoder(string text)
+        {
+            string[] textPieces = text.Split(' ');
+            for(int x = 1; x < textPieces.Length - 1; x ++)
+            {
+                textPieces[0] += ' ' + textPieces[x];
+            }
+            textPieces[1] = textPieces[textPieces.Length - 1];
+            byte[] bytes = new byte[textPieces[0].Length];
+            int i = 0;
+            foreach(char letter in textPieces[0])
+            {
+                bytes[i] = (byte)letter;
+                i ++;
+            }
+            int end = int.Parse(textPieces[1]);
+            return BinaryDecoder(bytes, 0, end);
+        }
+
         static char[] BinaryDecoder(byte[] targetArray, int start, int end)
         {
-            char[] returnArray = new char[(end - start) * 4];
+            char[] returnArray = new char[end - start];
             char indexValue;
 
-            for (int i = start; i < end; i++)
+            for (int i = start; i < targetArray.Length; i++)
             {
                 string simpleBinary = Convert.ToString(targetArray[i], 2);
                 int extra = 8 - simpleBinary.Length;
@@ -216,6 +235,8 @@ namespace FileCompressorDNA
 
             int[] binary = BinaryCoder(DNAString, start, end);
             var result = SliceArray(binary, binary.Length - 50, binary.Length - 1);
+            start = 0;
+            end = binary.Length;
 
 
             byte[] CompressedBytes = IntToByte(binary);
@@ -227,11 +248,14 @@ namespace FileCompressorDNA
             //string1 -> ASCIIEncoding.ASCII.GetBytes() -> CompressedBytes
             //string2 -> end
 
+            var readTest = File.ReadAllBytes("../../../test.txt");
+            int readTestLength = readTest.Length;
 
-            char[] DNADecoded = BinaryDecoder(CompressedBytes, 0, CompressedBytes.Length);
-            var result2 = SliceArray(DNADecoded, DNADecoded.Length - 50, DNADecoded.Length - 1);
+            //char[] DNADecoded = BinaryDecoder(CompressedBytes, 0, CompressedBytes.Length);
+            //char[] DNADecoded = Decoder(readTest);
+            //var result2 = SliceArray(DNADecoded, DNADecoded.Length - 1700, DNADecoded.Length - 1);
 
-            
+
             // A = 00
             // C = 01
             // G = 10
