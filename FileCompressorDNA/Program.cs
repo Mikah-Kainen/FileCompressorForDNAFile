@@ -71,17 +71,17 @@ namespace FileCompressorDNA
                 }
                 sb.Append(newAdd);
             }
-            int extraSpace = 4 - targetInt.Length % 4;
-            for(int i = 0; i < extraSpace; i ++)
-            {
-                sb.Append("00");
-            }
+            int originalSize = targetInt.Length % 4;
+            //for(int i = 0; i < extraSpace; i ++)
+            //{
+            //    sb.Append("00");
+            //}
 
             string str = sb.ToString();
 
-            byte[] returnArray = new byte[str.Length / 8];
+            byte[] returnArray = new byte[str.Length / 8 + 2];
 
-            for(int i = 0; i < returnArray.Length; i ++)
+            for(int i = 0; i < returnArray.Length - 2; i ++)
             {
                 string byteAsString = null;
                 for(int x = 0; x < 8; x ++)
@@ -108,7 +108,28 @@ namespace FileCompressorDNA
                 //returnArray[i] += (byte)(targetInt[4 * i + 3]);
                 //string bin4 = Convert.ToString(returnArray[4*i], 2);
             }
+            StringBuilder sb2 = new StringBuilder();
 
+            for(int i = 0; i < 4 - originalSize; i ++)
+            {
+                sb2.Append("00");
+            }
+            for(int i = targetInt.Length - originalSize; i < targetInt.Length; i ++)
+            {
+                if (targetInt[i] < 2)
+                {
+                    newAdd = '0' + targetInt[i].ToString();
+                }
+                else
+                {
+                    newAdd = targetInt[i].ToString();
+                }
+                sb2.Append(newAdd);
+            }
+            string str2 = sb2.ToString();
+
+            returnArray[returnArray.Length - 2] = (byte)BinaryToDecimal(str2);
+            returnArray[returnArray.Length - 1] = (byte)originalSize;
             return returnArray;
         }
 
@@ -124,6 +145,10 @@ namespace FileCompressorDNA
             return returnInt;
         }
 
+        static char[] SuperDecoder(byte[] targetBytes)
+        {
+            return null;
+        }
         static char[] Decoder(string text)
         {
             string[] textPieces = text.Split(' ');
@@ -145,7 +170,7 @@ namespace FileCompressorDNA
 
         static char[] BinaryDecoder(byte[] targetArray, int start, int end)
         {
-            char[] returnArray = new char[end - start];
+            char[] returnArray = new char[4 * (end - start)];
             char indexValue;
 
             for (int i = start; i < targetArray.Length; i++)
@@ -218,11 +243,15 @@ namespace FileCompressorDNA
             return returnArray;
         }
 
-        static bool AreEqual()
+        static byte[] SliceArray(byte[] targetArray, int startIndex, int endIndex)
         {
-            return true;
+            byte[] returnArray = new byte[endIndex - startIndex + 1];
+            for (int i = startIndex; i < endIndex + 1; i++)
+            {
+                returnArray[i - startIndex] = targetArray[i];
+            }
+            return returnArray;
         }
-
 
         static void Main(string[] args)
         {
@@ -241,19 +270,19 @@ namespace FileCompressorDNA
 
             byte[] CompressedBytes = IntToByte(binary);
             File.WriteAllBytes("../../../test.txt", CompressedBytes);
-            File.AppendAllText("../../../test.txt", $" {end - start}");
-
+            var result2 = SliceArray(CompressedBytes, CompressedBytes.Length - 50, CompressedBytes.Length - 1);
 
             //read all text then split the string by ' '
             //string1 -> ASCIIEncoding.ASCII.GetBytes() -> CompressedBytes
             //string2 -> end
 
-            var readTest = File.ReadAllBytes("../../../test.txt");
+            byte[] readTest = File.ReadAllBytes("../../../test.txt");
             int readTestLength = readTest.Length;
 
-            //char[] DNADecoded = BinaryDecoder(CompressedBytes, 0, CompressedBytes.Length);
+
+            char[] DNADecoded = BinaryDecoder(readTest, 0, readTest.Length);
             //char[] DNADecoded = Decoder(readTest);
-            //var result2 = SliceArray(DNADecoded, DNADecoded.Length - 1700, DNADecoded.Length - 1);
+            var result3 = SliceArray(DNADecoded, DNADecoded.Length - 50, DNADecoded.Length - 1);
 
 
             // A = 00
